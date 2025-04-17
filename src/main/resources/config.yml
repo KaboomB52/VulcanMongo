@@ -1,0 +1,7 @@
+# Server Configuration
+server-name: "MCRaidz"
+
+# Mongo Database
+mongo:
+  uri: "mongodb://localhost:27017"
+  database: "Vulcan"

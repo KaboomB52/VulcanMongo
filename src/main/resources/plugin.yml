@@ -1,0 +1,6 @@
+name: VulcanMongo
+main: dev.ianrich.vulcanmongo.VulcanMongo
+version: 1.0
+authors: ["Ian Rich"]
+description: "A extension for Vulcan that hooks into a mongo database."
+depend: ["Vulcan"]
