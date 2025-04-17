@@ -23,4 +23,10 @@ public class LogManager {
     public static Map<UUID, List<Log>> getAllLogs() {
         return logs;
     }
+
+    public static int getTotalLogCount() {
+        return logs.values().stream()
+                .mapToInt(List::size)
+                .sum();
+    }
 }
