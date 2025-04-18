@@ -51,12 +51,12 @@ public class MongoManager {
     // Save logs to MongoDB
     public static void saveLogs() {
         try {
-            for (UUID uuid : LogManager.getAllLogs().keySet()) {
-                List<Log> playerLogs = LogManager.getLogs(uuid);
-                List<Document> logDocs = new ArrayList<>();
+            List<Document> allLogs = new ArrayList<>();
 
-                for (Log log : playerLogs) {
-                    Document logDoc = new Document("timestamp", log.getTimestamp())
+            for (UUID uuid : LogManager.getAllLogs().keySet()) {
+                for (Log log : LogManager.getLogs(uuid)) {
+                    Document logDoc = new Document("uuid", uuid.toString())
+                            .append("timestamp", log.getTimestamp())
                             .append("playerName", log.getPlayerName())
                             .append("server", log.getServer())
                             .append("info", log.getInfo())
@@ -66,33 +66,20 @@ public class MongoManager {
                             .append("version", log.getVersion())
                             .append("ping", log.getPing())
                             .append("tps", log.getTps());
-                    logDocs.add(logDoc);
-                }
-
-                // Retrieve the existing document for the player from MongoDB
-                Document existingDoc = collection.find(eq("uuid", uuid.toString())).first();
-
-                // If the document exists, merge the logs with the new ones, otherwise create a new document
-                if (existingDoc != null) {
-                    List<Document> existingLogs = existingDoc.getList("logs", Document.class);
-                    existingLogs.addAll(logDocs); // Merge new logs with existing ones
-
-                    // Replace the document with the merged logs
-                    Document doc = new Document("uuid", uuid.toString())
-                            .append("logs", existingLogs);
-                    collection.replaceOne(eq("uuid", uuid.toString()), doc);
-                } else {
-                    // If no document exists, create a new one with the logs
-                    Document doc = new Document("uuid", uuid.toString())
-                            .append("logs", logDocs);
-                    collection.insertOne(doc);
+                    allLogs.add(logDoc);
                 }
             }
+
+            if (!allLogs.isEmpty()) {
+                collection.insertMany(allLogs);
+            }
+
             logger.info("Logs saved successfully.");
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to save logs to MongoDB", e);
         }
     }
+
 
 
     // Load logs from MongoDB
@@ -101,30 +88,27 @@ public class MongoManager {
             FindIterable<Document> docs = collection.find();
             for (Document doc : docs) {
                 UUID uuid = UUID.fromString(doc.getString("uuid"));
-                List<Document> logDocs = doc.getList("logs", Document.class);
-
-                for (Document logDoc : logDocs) {
-                    Log log = new Log(
-                            uuid,
-                            logDoc.getString("playerName"),
-                            logDoc.getLong("timestamp"),
-                            logDoc.getString("server"),
-                            logDoc.getString("info"),
-                            logDoc.getString("checkName"),
-                            logDoc.getString("checkType"),
-                            logDoc.getInteger("vl"),
-                            logDoc.getString("version"),
-                            logDoc.getInteger("ping"),
-                            logDoc.getDouble("tps")
-                    );
-                    LogManager.addLog(uuid, log);
-                }
+                Log log = new Log(
+                        uuid,
+                        doc.getString("playerName"),
+                        doc.getLong("timestamp"),
+                        doc.getString("server"),
+                        doc.getString("info"),
+                        doc.getString("checkName"),
+                        doc.getString("checkType"),
+                        doc.getInteger("vl"),
+                        doc.getString("version"),
+                        doc.getInteger("ping"),
+                        doc.getDouble("tps")
+                );
+                LogManager.addLog(uuid, log);
             }
             logger.info("Logs loaded successfully.");
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to load logs from MongoDB", e);
         }
     }
+
 
     // Close MongoDB connection
     public static void close() {
