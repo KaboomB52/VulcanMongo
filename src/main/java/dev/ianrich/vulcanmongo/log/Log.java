@@ -1,4 +1,4 @@
-package dev.ianrich.vulcanmongo.log.construct;
+package dev.ianrich.vulcanmongo.log;
 
 import lombok.Data;
 

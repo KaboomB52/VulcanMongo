@@ -3,16 +3,14 @@ package dev.ianrich.vulcanmongo.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import co.aikar.commands.annotation.Optional;
-import co.aikar.commands.bukkit.contexts.OnlinePlayer;
-import dev.ianrich.vulcanmongo.log.LogManager;
-import dev.ianrich.vulcanmongo.log.construct.Log;
+import dev.ianrich.vulcanmongo.log.Log;
+import dev.ianrich.vulcanmongo.mongo.MongoManager;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @CommandAlias("logs")
 @CommandPermission("vulcan.admin")
@@ -25,7 +23,7 @@ public class LogsCommand extends BaseCommand {
     @Syntax("<target> [page]")
     public void onLogsCommand(Player sender, OfflinePlayer target, @Optional Integer page) {
         UUID targetUUID = target.getUniqueId();
-        List<Log> logs = LogManager.getLogs(targetUUID).stream()
+        List<Log> logs = MongoManager.getLogsByUUID(targetUUID).stream()
                 .sorted(Comparator.comparingLong(Log::getTimestamp).reversed())
                 .toList();
 

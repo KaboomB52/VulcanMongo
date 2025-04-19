@@ -1,8 +1,8 @@
 package dev.ianrich.vulcanmongo.listener;
 
 import dev.ianrich.vulcanmongo.VulcanMongo;
-import dev.ianrich.vulcanmongo.log.LogManager;
-import dev.ianrich.vulcanmongo.log.construct.Log;
+import dev.ianrich.vulcanmongo.log.Log;
+import dev.ianrich.vulcanmongo.mongo.MongoManager;
 import me.frep.vulcan.api.VulcanAPI;
 import me.frep.vulcan.api.event.VulcanFlagEvent;
 import org.bukkit.event.EventHandler;
@@ -12,7 +12,7 @@ public class VulcanListener implements Listener {
 
     @EventHandler
     public void onFlag(VulcanFlagEvent event){
-        LogManager.addLog(event.getPlayer().getUniqueId(),
+        MongoManager.saveLog(
                 new Log(
                         event.getPlayer().getUniqueId(), event.getPlayer().getName(),
                         System.currentTimeMillis(),
